@@ -18,8 +18,16 @@
                 <span class="tab-icon">📅</span>
                 <span class="tab-label">יום</span>
             </button>
-            <button class="tab-button" data-tab="list">
+            <button class="tab-button" data-tab="month">
+                <span class="tab-icon">📆</span>
+                <span class="tab-label">חודש</span>
+            </button>
+            <button class="tab-button" data-tab="kanban">
                 <span class="tab-icon">📋</span>
+                <span class="tab-label">Kanban</span>
+            </button>
+            <button class="tab-button" data-tab="list">
+                <span class="tab-icon">📝</span>
                 <span class="tab-label">כל המשימות</span>
             </button>
         </nav>
@@ -55,6 +63,37 @@
             </div>
         </div>
 
+        <!-- Month View -->
+        <div id="month-view" class="view">
+            <header class="header">
+                <button class="btn-base btn-icon" onclick="taskPlanner.previousMonth()" style="background: var(--background);">
+                    <span>←</span>
+                </button>
+                <h1 id="month-title">חודש</h1>
+                <button class="btn-base btn-icon" onclick="taskPlanner.nextMonth()" style="background: var(--background);">
+                    <span>→</span>
+                </button>
+            </header>
+
+            <div class="month-calendar-container">
+                <div id="month-calendar" class="month-calendar"></div>
+            </div>
+        </div>
+
+        <!-- Kanban View -->
+        <div id="kanban-view" class="view">
+            <header class="header">
+                <h1>תצוגת Kanban</h1>
+                <button class="btn-base btn-icon add-button" onclick="showAddTaskModal()">
+                    <span>+</span>
+                </button>
+            </header>
+
+            <div class="kanban-container" id="kanban-container">
+                <!-- Columns will be generated dynamically -->
+            </div>
+        </div>
+
         <!-- List View -->
         <div id="list-view" class="view">
             <header class="header">
@@ -70,6 +109,16 @@
                     <option value="all">כל המשימות</option>
                     <option value="incomplete">לא הושלמו</option>
                     <option value="today">משימות היום</option>
+                    <option value="unscheduled">משימות מחכות לשיבוץ</option>
+                </select>
+                <select id="category-filter" class="filter-select" style="margin-top: 8px;">
+                    <option value="">כל הקטגוריות</option>
+                </select>
+                <select id="priority-filter" class="filter-select" style="margin-top: 8px;">
+                    <option value="">כל העדיפויות</option>
+                    <option value="גבוהה">גבוהה</option>
+                    <option value="בינונית">בינונית</option>
+                    <option value="נמוכה">נמוכה</option>
                 </select>
             </div>
 
@@ -116,6 +165,27 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="task-category">קטגוריה</label>
+                    <select id="task-category">
+                        <option value="">ללא קטגוריה</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-priority">עדיפות</label>
+                    <select id="task-priority">
+                        <option value="">ללא עדיפות</option>
+                        <option value="גבוהה">גבוהה 🔴</option>
+                        <option value="בינונית">בינונית 🟡</option>
+                        <option value="נמוכה">נמוכה 🟢</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="task-unscheduled">
+                        משימה מחכה לשיבוץ (ללא תאריך)
+                    </label>
+                </div>
+                <div class="form-group">
                     <label>
                         <input type="checkbox" id="has-reminder">
                         הגדר תזכורת
@@ -136,11 +206,34 @@
         </div>
     </div>
 
+    <!-- Import Modal -->
+    <div id="import-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ייבוא משימות מפסח</h2>
+                <button class="btn-base btn-icon close-button" onclick="closeImportModal()">×</button>
+            </div>
+            <div class="import-content">
+                <p>העלה את קובץ ה-HTML של ניקיון פסח:</p>
+                <input type="file" id="import-file" accept=".html" style="margin: 16px 0;">
+                <div class="form-actions">
+                    <button type="button" class="btn-base btn-secondary" onclick="closeImportModal()">ביטול</button>
+                    <button type="button" class="btn-base btn-primary" onclick="taskPlanner.importPassoverTasks()">ייבוא</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification Permission Banner -->
     <div id="notification-banner" class="notification-banner" style="display: none;">
         <p>האפליקציה צריכה הרשאה לשלוח תזכורות</p>
         <button class="btn-base btn-primary" onclick="requestNotificationPermission()">אשר</button>
     </div>
+
+    <!-- Import Button (floating) -->
+    <button class="import-fab" onclick="showImportModal()" title="ייבוא משימות מפסח">
+        📥
+    </button>
 
     <script src="app.js"></script>
 </body>
