@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="אפליקציית תכנון משימות יומיות ושעתיות">
+    <meta name="theme-color" content="#007AFF">
+    <title>תכנון משימות</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab-button active" data-tab="day">
+                <span class="tab-icon">📅</span>
+                <span class="tab-label">יום</span>
+            </button>
+            <button class="tab-button" data-tab="list">
+                <span class="tab-icon">📋</span>
+                <span class="tab-label">כל המשימות</span>
+            </button>
+        </nav>
+
+        <!-- Day View -->
+        <div id="day-view" class="view active">
+            <header class="header">
+                <h1>תכנון יומי</h1>
+                <button class="add-button" id="add-task-btn">
+                    <span>+</span>
+                </button>
+            </header>
+
+            <!-- Date Picker -->
+            <div class="date-picker-container">
+                <input type="date" id="date-picker" class="date-picker">
+            </div>
+
+            <!-- Tasks without time -->
+            <div id="tasks-without-time" class="tasks-section" style="display: none;">
+                <h2 class="section-title">משימות ללא שעה ספציפית</h2>
+                <div id="tasks-without-time-list" class="tasks-list"></div>
+            </div>
+
+            <!-- Hourly Tasks -->
+            <div class="hourly-container">
+                <div id="hourly-tasks" class="hourly-tasks"></div>
+            </div>
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">📝</div>
+                <p>אין משימות ליום זה</p>
+                <button class="btn-primary" onclick="showAddTaskModal()">הוסף משימה חדשה</button>
+            </div>
+        </div>
+
+        <!-- List View -->
+        <div id="list-view" class="view">
+            <header class="header">
+                <h1>כל המשימות</h1>
+                <button class="add-button" onclick="showAddTaskModal()">
+                    <span>+</span>
+                </button>
+            </header>
+
+            <!-- Filter -->
+            <div class="filter-container">
+                <select id="filter-select" class="filter-select">
+                    <option value="all">כל המשימות</option>
+                    <option value="incomplete">לא הושלמו</option>
+                    <option value="today">משימות היום</option>
+                </select>
+            </div>
+
+            <div id="tasks-list-container" class="tasks-list-container">
+                <div id="tasks-list" class="tasks-list"></div>
+                <div id="empty-list-state" class="empty-state" style="display: none;">
+                    <div class="empty-icon">✓</div>
+                    <p>אין משימות</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div id="task-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">משימה חדשה</h2>
+                <button class="close-button" onclick="closeTaskModal()">×</button>
+            </div>
+            <form id="task-form" class="task-form">
+                <div class="form-group">
+                    <label for="task-title">כותרת המשימה *</label>
+                    <input type="text" id="task-title" required placeholder="הכנס כותרת">
+                </div>
+                <div class="form-group">
+                    <label for="task-description">תיאור</label>
+                    <textarea id="task-description" rows="3" placeholder="הכנס תיאור (אופציונלי)"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="task-date">תאריך *</label>
+                    <input type="date" id="task-date" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="has-hour">
+                        שעה ספציפית
+                    </label>
+                </div>
+                <div class="form-group" id="hour-group" style="display: none;">
+                    <label for="task-hour">שעה</label>
+                    <select id="task-hour">
+                        <option value="">בחר שעה</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="has-reminder">
+                        הגדר תזכורת
+                    </label>
+                </div>
+                <div class="form-group" id="reminder-group" style="display: none;">
+                    <label for="reminder-date">תאריך ושעה לתזכורת</label>
+                    <input type="datetime-local" id="reminder-date">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeTaskModal()">ביטול</button>
+                    <button type="submit" class="btn-primary">שמור</button>
+                </div>
+                <div id="delete-task-section" style="display: none;">
+                    <button type="button" class="btn-danger" onclick="deleteCurrentTask()">מחק משימה</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Permission Banner -->
+    <div id="notification-banner" class="notification-banner" style="display: none;">
+        <p>האפליקציה צריכה הרשאה לשלוח תזכורות</p>
+        <button class="btn-primary" onclick="requestNotificationPermission()">אשר</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
