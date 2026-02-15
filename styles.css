@@ -7,14 +7,42 @@
 :root {
     --primary-color: #007AFF;
     --primary-dark: #0051D5;
+    --primary-light: #5AC8FA;
     --success-color: #34C759;
     --danger-color: #FF3B30;
+    --warning-color: #FF9500;
     --background: #F2F2F7;
     --surface: #FFFFFF;
     --text-primary: #000000;
     --text-secondary: #8E8E93;
     --border-color: #C6C6C8;
     --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.15);
+    
+    /* Unified Button System */
+    --btn-height: 44px;
+    --btn-padding-x: 20px;
+    --btn-padding-y: 12px;
+    --btn-border-radius: 10px;
+    --btn-font-size: 16px;
+    --btn-font-weight: 600;
+    
+    /* Touch targets */
+    --touch-target-min: 44px;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+}
+
+html {
+    /* iPhone 13 Pro Max viewport optimization */
+    width: 100%;
+    height: 100%;
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -25,19 +53,156 @@ body {
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    /* Safe area support for iPhone */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 #app {
     max-width: 100%;
     margin: 0 auto;
     min-height: 100vh;
-    padding-bottom: 80px;
+    min-height: -webkit-fill-available;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    padding-top: env(safe-area-inset-top);
 }
 
-/* Header */
+/* ============================================
+   UNIFIED BUTTON SYSTEM
+   ============================================ */
+
+/* Base Button - All buttons inherit from this */
+.btn-base {
+    min-height: var(--btn-height);
+    padding: var(--btn-padding-y) var(--btn-padding-x);
+    border-radius: var(--btn-border-radius);
+    font-size: var(--btn-font-size);
+    font-weight: var(--btn-font-weight);
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    white-space: nowrap;
+    min-width: var(--touch-target-min);
+}
+
+.btn-base:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+}
+
+.btn-base:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Primary Button */
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.btn-primary:active {
+    background: var(--primary-dark);
+    box-shadow: 0 1px 4px rgba(0, 122, 255, 0.4);
+}
+
+/* Secondary Button */
+.btn-secondary {
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1.5px solid var(--border-color);
+}
+
+.btn-secondary:active {
+    background: var(--background);
+    border-color: var(--primary-color);
+}
+
+/* Danger Button */
+.btn-danger {
+    background: var(--danger-color);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 59, 48, 0.3);
+}
+
+.btn-danger:active {
+    background: #E6342A;
+    box-shadow: 0 1px 4px rgba(255, 59, 48, 0.4);
+}
+
+/* Icon Buttons - Square, minimum 44x44 */
+.btn-icon {
+    width: var(--btn-height);
+    height: var(--btn-height);
+    min-width: var(--btn-height);
+    min-height: var(--btn-height);
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon.add-button {
+    background: var(--primary-color);
+    color: white;
+    font-size: 28px;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.btn-icon.add-button:active {
+    background: var(--primary-dark);
+}
+
+.btn-icon.close-button {
+    background: var(--background);
+    color: var(--text-primary);
+    font-size: 24px;
+    width: var(--btn-height);
+    height: var(--btn-height);
+}
+
+.btn-icon.close-button:active {
+    background: var(--border-color);
+}
+
+/* Full Width Buttons */
+.btn-full {
+    width: 100%;
+}
+
+/* Button in Form Actions - Equal width */
+.form-actions .btn-base {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Task Action Buttons - Consistent sizing */
+.task-actions .btn-base {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
 .header {
     background: var(--surface);
-    padding: 16px 20px;
+    padding: var(--spacing-md) var(--spacing-lg);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -45,35 +210,20 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
+    /* Safe area for notch */
+    padding-top: calc(var(--spacing-md) + env(safe-area-inset-top));
 }
 
 .header h1 {
     font-size: 28px;
     font-weight: 700;
+    line-height: 1.2;
 }
 
-.add-button {
-    width: 44px;
-    height: 44px;
-    border-radius: 22px;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    font-size: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
-    transition: all 0.2s;
-}
+/* ============================================
+   TABS
+   ============================================ */
 
-.add-button:active {
-    transform: scale(0.95);
-    background: var(--primary-dark);
-}
-
-/* Tabs */
 .tabs {
     position: fixed;
     bottom: 0;
@@ -83,21 +233,26 @@ body {
     display: flex;
     border-top: 1px solid var(--border-color);
     z-index: 1000;
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: max(var(--spacing-md), env(safe-area-inset-bottom));
+    padding-top: var(--spacing-sm);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .tab-button {
     flex: 1;
-    padding: 12px;
+    min-height: var(--touch-target-min);
+    padding: var(--spacing-sm) var(--spacing-md);
     background: none;
     border: none;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    gap: var(--spacing-xs);
     cursor: pointer;
     color: var(--text-secondary);
     transition: color 0.2s;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .tab-button.active {
@@ -106,13 +261,19 @@ body {
 
 .tab-icon {
     font-size: 24px;
+    line-height: 1;
 }
 
 .tab-label {
     font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
 }
 
-/* Views */
+/* ============================================
+   VIEWS
+   ============================================ */
+
 .view {
     display: none;
 }
@@ -121,55 +282,75 @@ body {
     display: block;
 }
 
-/* Date Picker */
+/* ============================================
+   DATE PICKER
+   ============================================ */
+
 .date-picker-container {
     background: var(--surface);
-    padding: 16px;
-    margin: 8px;
+    padding: var(--spacing-md);
+    margin: var(--spacing-sm);
     border-radius: 12px;
     box-shadow: var(--shadow);
 }
 
 .date-picker {
     width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 16px;
+    min-height: var(--touch-target-min);
+    padding: var(--spacing-md);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--btn-border-radius);
+    font-size: var(--btn-font-size);
+    font-family: inherit;
     direction: ltr;
     text-align: center;
+    background: var(--surface);
+    transition: border-color 0.2s;
 }
 
-/* Tasks Section */
+.date-picker:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* ============================================
+   TASKS SECTION
+   ============================================ */
+
 .tasks-section {
-    margin: 16px 8px;
+    margin: var(--spacing-md) var(--spacing-sm);
 }
 
 .section-title {
     font-size: 18px;
     font-weight: 600;
-    margin-bottom: 12px;
-    padding: 0 8px;
+    margin-bottom: var(--spacing-md);
+    padding: 0 var(--spacing-sm);
     color: var(--text-primary);
 }
 
 .tasks-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--spacing-md);
 }
 
-/* Task Card */
+/* ============================================
+   TASK CARD
+   ============================================ */
+
 .task-card {
     background: var(--surface);
     border-radius: 12px;
-    padding: 16px;
+    padding: var(--spacing-md);
     box-shadow: var(--shadow);
     transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
 }
 
 .task-card:active {
     transform: scale(0.98);
+    box-shadow: var(--shadow-lg);
 }
 
 .task-card.completed {
@@ -179,14 +360,16 @@ body {
 .task-header {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
+    gap: var(--spacing-md);
 }
 
 .task-checkbox {
-    width: 24px;
-    height: 24px;
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    border: 2.5px solid var(--border-color);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -194,6 +377,12 @@ body {
     flex-shrink: 0;
     margin-top: 2px;
     transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    background: var(--surface);
+}
+
+.task-checkbox:active {
+    transform: scale(0.95);
 }
 
 .task-checkbox.checked {
@@ -204,19 +393,22 @@ body {
 .task-checkbox.checked::after {
     content: '✓';
     color: white;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: bold;
+    line-height: 1;
 }
 
 .task-content {
     flex: 1;
+    min-width: 0;
 }
 
 .task-title {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
-    margin-bottom: 4px;
+    margin-bottom: var(--spacing-xs);
     word-break: break-word;
+    line-height: 1.4;
 }
 
 .task-title.completed {
@@ -226,43 +418,49 @@ body {
 
 .task-meta {
     display: flex;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
     font-size: 14px;
     color: var(--text-secondary);
-    margin-top: 4px;
+    margin-top: var(--spacing-xs);
+    line-height: 1.5;
 }
 
 .task-hour {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--spacing-xs);
 }
 
 .task-description {
-    margin-top: 8px;
-    font-size: 14px;
+    margin-top: var(--spacing-sm);
+    font-size: 15px;
     color: var(--text-secondary);
     line-height: 1.5;
+    word-break: break-word;
 }
 
 .task-actions {
     display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    padding-top: 12px;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
     border-top: 1px solid var(--border-color);
 }
 
-/* Hourly View */
+/* ============================================
+   HOURLY VIEW
+   ============================================ */
+
 .hourly-container {
-    margin: 16px 8px;
+    margin: var(--spacing-md) var(--spacing-sm);
 }
 
 .hourly-section {
     background: var(--surface);
     border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
     box-shadow: var(--shadow);
 }
 
@@ -270,8 +468,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -285,25 +483,40 @@ body {
     color: var(--text-secondary);
 }
 
-/* Filter */
+/* ============================================
+   FILTER
+   ============================================ */
+
 .filter-container {
-    padding: 16px;
+    padding: var(--spacing-md);
     background: var(--surface);
-    margin: 8px;
+    margin: var(--spacing-sm);
     border-radius: 12px;
     box-shadow: var(--shadow);
 }
 
 .filter-select {
     width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 16px;
+    min-height: var(--touch-target-min);
+    padding: var(--spacing-md);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--btn-border-radius);
+    font-size: var(--btn-font-size);
+    font-family: inherit;
     background: var(--surface);
+    cursor: pointer;
+    transition: border-color 0.2s;
 }
 
-/* Modal */
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+
 .modal {
     position: fixed;
     top: 0;
@@ -315,6 +528,9 @@ body {
     align-items: flex-end;
     z-index: 1000;
     animation: fadeIn 0.2s;
+    /* Safe area support */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 @keyframes fadeIn {
@@ -325,11 +541,34 @@ body {
 .modal-content {
     background: var(--surface);
     width: 100%;
-    max-height: 90vh;
+    max-height: 85vh;
     border-radius: 20px 20px 0 0;
-    padding: 20px;
+    padding: var(--spacing-lg);
     overflow-y: auto;
-    animation: slideUp 0.3s;
+    -webkit-overflow-scrolling: touch;
+    animation: slideUp 0.3s ease-out;
+    /* Safe area for iPhone 13 Pro Max */
+    padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom));
+    /* Better scrolling on tall screens */
+    overscroll-behavior: contain;
+}
+
+/* Modal scrollbar styling for better UX */
+.modal-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 2px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
 }
 
 @keyframes slideUp {
@@ -341,44 +580,38 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .modal-header h2 {
     font-size: 24px;
     font-weight: 700;
+    line-height: 1.2;
 }
 
-.close-button {
-    width: 32px;
-    height: 32px;
-    border: none;
-    background: var(--background);
-    border-radius: 16px;
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+/* ============================================
+   FORM
+   ============================================ */
 
-/* Form */
 .task-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--spacing-lg);
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--spacing-sm);
 }
 
 .form-group label {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--text-primary);
+    line-height: 1.4;
 }
 
 .form-group input[type="text"],
@@ -386,124 +619,157 @@ body {
 .form-group input[type="datetime-local"],
 .form-group textarea,
 .form-group select {
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 16px;
+    min-height: var(--touch-target-min);
+    padding: var(--spacing-md);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--btn-border-radius);
+    font-size: var(--btn-font-size);
     font-family: inherit;
     background: var(--surface);
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="date"]:focus,
+.form-group input[type="datetime-local"]:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.5;
 }
 
 .form-group input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
     cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--surface);
+    transition: all 0.2s;
+    position: relative;
+}
+
+.form-group input[type="checkbox"]:checked {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-group input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .form-group label:has(input[type="checkbox"]) {
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+    gap: var(--spacing-sm);
+    cursor: pointer;
 }
 
 .form-actions {
     display: flex;
-    gap: 12px;
-    margin-top: 8px;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-sm);
 }
 
-/* Buttons */
-.btn-primary {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    flex: 1;
-}
+/* ============================================
+   EMPTY STATE
+   ============================================ */
 
-.btn-primary:active {
-    background: var(--primary-dark);
-}
-
-.btn-secondary {
-    background: var(--background);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    flex: 1;
-}
-
-.btn-secondary:active {
-    background: var(--border-color);
-}
-
-.btn-danger {
-    background: var(--danger-color);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 16px;
-}
-
-.btn-danger:active {
-    opacity: 0.8;
-}
-
-/* Empty State */
 .empty-state {
     text-align: center;
-    padding: 60px 20px;
+    padding: 60px var(--spacing-lg);
     color: var(--text-secondary);
 }
 
 .empty-icon {
     font-size: 64px;
-    margin-bottom: 16px;
+    margin-bottom: var(--spacing-md);
+    line-height: 1;
 }
 
 .empty-state p {
     font-size: 18px;
-    margin-bottom: 24px;
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.5;
 }
 
-/* Notification Banner */
+/* ============================================
+   NOTIFICATION BANNER
+   ============================================ */
+
 .notification-banner {
     position: fixed;
-    bottom: 80px;
-    left: 16px;
-    right: 16px;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    left: var(--spacing-md);
+    right: var(--spacing-md);
     background: var(--surface);
-    padding: 16px;
+    padding: var(--spacing-md);
     border-radius: 12px;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-lg);
     z-index: 999;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
+    gap: var(--spacing-md);
 }
 
 .notification-banner p {
     flex: 1;
-    font-size: 14px;
+    font-size: 15px;
+    line-height: 1.4;
 }
 
-/* Animations */
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--primary-color);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
 @keyframes slideIn {
     from {
         opacity: 0;
@@ -515,18 +781,37 @@ body {
     }
 }
 
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
 .task-card {
     animation: slideIn 0.3s ease-out;
 }
 
-/* Safe Area for iPhone */
-@supports (padding: max(0px)) {
-    .tabs {
-        padding-bottom: max(16px, env(safe-area-inset-bottom));
+/* ============================================
+   RESPONSIVE - iPhone 13 Pro Max & Larger
+   ============================================ */
+
+/* iPhone 13 Pro Max: 428x926 */
+@media (min-width: 428px) and (max-height: 926px) {
+    .modal-content {
+        max-height: 80vh;
+    }
+    
+    .header h1 {
+        font-size: 30px;
     }
 }
 
-/* Responsive */
+/* Tablet and larger */
 @media (min-width: 768px) {
     #app {
         max-width: 600px;
@@ -539,4 +824,43 @@ body {
         border-radius: 20px;
         max-height: 80vh;
     }
+}
+
+/* Landscape orientation */
+@media (orientation: landscape) and (max-height: 500px) {
+    .modal-content {
+        max-height: 90vh;
+    }
+    
+    .header {
+        padding: var(--spacing-sm) var(--spacing-lg);
+    }
+    
+    .header h1 {
+        font-size: 24px;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus visible for keyboard navigation */
+.btn-base:focus-visible,
+.task-checkbox:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
 }

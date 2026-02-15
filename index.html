@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="אפליקציית תכנון משימות יומיות ושעתיות">
     <meta name="theme-color" content="#007AFF">
     <title>תכנון משימות</title>
@@ -28,7 +28,7 @@
         <div id="day-view" class="view active">
             <header class="header">
                 <h1>תכנון יומי</h1>
-                <button class="add-button" id="add-task-btn">
+                <button class="btn-base btn-icon add-button" id="add-task-btn">
                     <span>+</span>
                 </button>
             </header>
@@ -51,7 +51,7 @@
             <div id="empty-state" class="empty-state" style="display: none;">
                 <div class="empty-icon">📝</div>
                 <p>אין משימות ליום זה</p>
-                <button class="btn-primary" onclick="showAddTaskModal()">הוסף משימה חדשה</button>
+                <button class="btn-base btn-primary btn-full" onclick="showAddTaskModal()">הוסף משימה חדשה</button>
             </div>
         </div>
 
@@ -59,7 +59,7 @@
         <div id="list-view" class="view">
             <header class="header">
                 <h1>כל המשימות</h1>
-                <button class="add-button" onclick="showAddTaskModal()">
+                <button class="btn-base btn-icon add-button" onclick="showAddTaskModal()">
                     <span>+</span>
                 </button>
             </header>
@@ -88,7 +88,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modal-title">משימה חדשה</h2>
-                <button class="close-button" onclick="closeTaskModal()">×</button>
+                <button class="btn-base btn-icon close-button" onclick="closeTaskModal()">×</button>
             </div>
             <form id="task-form" class="task-form">
                 <div class="form-group">
@@ -126,11 +126,11 @@
                     <input type="datetime-local" id="reminder-date">
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="closeTaskModal()">ביטול</button>
-                    <button type="submit" class="btn-primary">שמור</button>
+                    <button type="button" class="btn-base btn-secondary" onclick="closeTaskModal()">ביטול</button>
+                    <button type="submit" class="btn-base btn-primary">שמור</button>
                 </div>
                 <div id="delete-task-section" style="display: none;">
-                    <button type="button" class="btn-danger" onclick="deleteCurrentTask()">מחק משימה</button>
+                    <button type="button" class="btn-base btn-danger btn-full" onclick="deleteCurrentTask()">מחק משימה</button>
                 </div>
             </form>
         </div>
@@ -139,7 +139,7 @@
     <!-- Notification Permission Banner -->
     <div id="notification-banner" class="notification-banner" style="display: none;">
         <p>האפליקציה צריכה הרשאה לשלוח תזכורות</p>
-        <button class="btn-primary" onclick="requestNotificationPermission()">אשר</button>
+        <button class="btn-base btn-primary" onclick="requestNotificationPermission()">אשר</button>
     </div>
 
     <script src="app.js"></script>

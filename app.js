@@ -142,12 +142,28 @@ class TaskPlanner {
 
     // Load Tasks
     async loadTasks() {
-        const activeView = document.querySelector('.view.active').id;
+        const activeView = document.querySelector('.view.active');
+        if (!activeView) return;
         
-        if (activeView === 'day-view') {
-            await this.loadDayView();
-        } else {
-            await this.loadListView();
+        // Show loading state
+        const container = activeView.id === 'day-view' 
+            ? document.getElementById('hourly-tasks')
+            : document.getElementById('tasks-list');
+        
+        if (container) {
+            container.style.opacity = '0.5';
+        }
+        
+        try {
+            if (activeView.id === 'day-view') {
+                await this.loadDayView();
+            } else {
+                await this.loadListView();
+            }
+        } finally {
+            if (container) {
+                container.style.opacity = '1';
+            }
         }
     }
 
@@ -243,8 +259,8 @@ class TaskPlanner {
                     </div>
                 </div>
                 <div class="task-actions">
-                    ${!task.isCompleted ? `<button class="btn-secondary" onclick="taskPlanner.rescheduleTask('${task.id}')" style="flex: 1; padding: 8px;">תכנן מחדש</button>` : ''}
-                    <button class="btn-danger" onclick="taskPlanner.deleteTask('${task.id}')" style="flex: 1; padding: 8px;">מחק</button>
+                    ${!task.isCompleted ? `<button class="btn-base btn-secondary" onclick="taskPlanner.rescheduleTask('${task.id}')">תכנן מחדש</button>` : ''}
+                    <button class="btn-base btn-danger" onclick="taskPlanner.deleteTask('${task.id}')">מחק</button>
                 </div>
             </div>
         `;
@@ -323,7 +339,22 @@ class TaskPlanner {
     // Save Task
     async saveTask() {
         const title = document.getElementById('task-title').value.trim();
-        if (!title) return;
+        if (!title) {
+            // Visual feedback for empty title
+            const titleInput = document.getElementById('task-title');
+            titleInput.style.borderColor = 'var(--danger-color)';
+            setTimeout(() => {
+                titleInput.style.borderColor = '';
+            }, 2000);
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = document.querySelector('#task-form button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.classList.add('loading');
+        submitBtn.textContent = 'שומר...';
 
         const description = document.getElementById('task-description').value.trim() || null;
         const date = new Date(document.getElementById('task-date').value);
@@ -358,8 +389,43 @@ class TaskPlanner {
             this.scheduleNotification(task);
         }
 
+        // Reset button state
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('loading');
+        submitBtn.textContent = originalText;
+        
         closeTaskModal();
-        this.loadTasks();
+        await this.loadTasks();
+        
+        // Visual feedback - show success
+        this.showFeedback('המשימה נשמרה בהצלחה!');
+    }
+    
+    // Show feedback message
+    showFeedback(message) {
+        const feedback = document.createElement('div');
+        feedback.textContent = message;
+        feedback.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            left: 20px;
+            background: var(--success-color);
+            color: white;
+            padding: 16px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            z-index: 2000;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        `;
+        document.body.appendChild(feedback);
+        
+        setTimeout(() => {
+            feedback.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => feedback.remove(), 300);
+        }, 2000);
     }
 
     // Save Task to DB
@@ -381,7 +447,11 @@ class TaskPlanner {
 
         task.isCompleted = !task.isCompleted;
         await this.saveTaskToDB(task);
-        this.loadTasks();
+        await this.loadTasks();
+        
+        // Visual feedback
+        const message = task.isCompleted ? 'משימה הושלמה! ✓' : 'משימה בוטלה';
+        this.showFeedback(message);
     }
 
     // Delete Task
@@ -397,8 +467,9 @@ class TaskPlanner {
             const store = transaction.objectStore('tasks');
             const request = store.delete(taskId);
 
-            request.onsuccess = () => {
-                this.loadTasks();
+            request.onsuccess = async () => {
+                await this.loadTasks();
+                this.showFeedback('המשימה נמחקה');
                 resolve();
             };
             request.onerror = () => reject(request.error);
