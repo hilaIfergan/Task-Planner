@@ -2,7 +2,9 @@
 
 class TaskPlanner {
     constructor() {
-        this.db = null;
+        this.db = null; // IndexedDB
+        this.firestore = null; // Firebase Firestore
+        this.useFirebase = false;
         this.currentDate = new Date();
         this.currentTask = null;
         this.init();
@@ -10,6 +12,7 @@ class TaskPlanner {
 
     async init() {
         await this.initDB();
+        await this.initFirebase();
         this.setupEventListeners();
         this.setupTabs();
         this.populateHourOptions();
@@ -19,6 +22,89 @@ class TaskPlanner {
         this.currentYear = new Date().getFullYear();
         this.loadTasks();
         this.setupServiceWorker();
+    }
+    
+    // Initialize Firebase
+    async initFirebase() {
+        // Check if Firebase is available and configured
+        if (typeof firebase === 'undefined' || typeof USE_FIREBASE === 'undefined' || !USE_FIREBASE) {
+            console.log('Firebase לא מוגדר - משתמשים ב-IndexedDB בלבד');
+            this.useFirebase = false;
+            return;
+        }
+        
+        try {
+            // Initialize Firebase
+            if (!firebase.apps || firebase.apps.length === 0) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            
+            this.firestore = firebase.firestore();
+            this.useFirebase = true;
+            console.log('Firebase מחובר בהצלחה!');
+            
+            // Sync data from Firebase on startup
+            await this.syncFromFirebase();
+            
+            // Listen for real-time updates
+            this.setupFirebaseListeners();
+        } catch (error) {
+            console.error('שגיאה בהתחברות ל-Firebase:', error);
+            this.useFirebase = false;
+            // Don't show error if Firebase is intentionally not configured
+            if (USE_FIREBASE) {
+                this.showFeedback('Firebase לא זמין - משתמשים באחסון מקומי', 'error');
+            }
+        }
+    }
+    
+    // Sync data from Firebase to IndexedDB
+    async syncFromFirebase() {
+        if (!this.useFirebase) return;
+        
+        try {
+            const snapshot = await this.firestore.collection('tasks').get();
+            const tasks = [];
+            
+            snapshot.forEach(doc => {
+                tasks.push({ id: doc.id, ...doc.data() });
+            });
+            
+            // Save to IndexedDB
+            for (const task of tasks) {
+                await this.saveTaskToIndexedDB(task);
+            }
+            
+            console.log(`סונכרנו ${tasks.length} משימות מ-Firebase`);
+        } catch (error) {
+            console.error('שגיאה בסנכרון מ-Firebase:', error);
+        }
+    }
+    
+    // Setup real-time listeners
+    setupFirebaseListeners() {
+        if (!this.useFirebase) return;
+        
+        this.firestore.collection('tasks').onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                const task = { id: change.doc.id, ...change.doc.data() };
+                
+                if (change.type === 'added' || change.type === 'modified') {
+                    this.saveTaskToIndexedDB(task).then(() => {
+                        // Only reload if not the current user's action
+                        if (!this.isCurrentUserAction) {
+                            this.loadTasks();
+                        }
+                    });
+                } else if (change.type === 'removed') {
+                    this.deleteTaskFromIndexedDB(task.id).then(() => {
+                        if (!this.isCurrentUserAction) {
+                            this.loadTasks();
+                        }
+                    });
+                }
+            });
+        });
     }
 
     // Initialize IndexedDB
@@ -861,12 +947,48 @@ class TaskPlanner {
         }, 2000);
     }
 
-    // Save Task to DB
+    // Save Task to DB (both IndexedDB and Firebase)
     async saveTaskToDB(task) {
+        // Always save to IndexedDB first (for offline support)
+        await this.saveTaskToIndexedDB(task);
+        
+        // Then sync to Firebase if available
+        if (this.useFirebase) {
+            try {
+                this.isCurrentUserAction = true;
+                const taskData = { ...task };
+                delete taskData.id; // Firestore will use the id as document ID
+                
+                await this.firestore.collection('tasks').doc(task.id).set(taskData, { merge: true });
+                
+                setTimeout(() => {
+                    this.isCurrentUserAction = false;
+                }, 1000);
+            } catch (error) {
+                console.error('שגיאה בשמירה ל-Firebase:', error);
+                this.showFeedback('שמירה ל-Firebase נכשלה - הנתונים נשמרו מקומית', 'error');
+            }
+        }
+    }
+    
+    // Save Task to IndexedDB only
+    async saveTaskToIndexedDB(task) {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(['tasks'], 'readwrite');
             const store = transaction.objectStore('tasks');
             const request = store.put(task);
+
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    // Delete Task from IndexedDB only
+    async deleteTaskFromIndexedDB(taskId) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['tasks'], 'readwrite');
+            const store = transaction.objectStore('tasks');
+            const request = store.delete(taskId);
 
             request.onsuccess = () => resolve();
             request.onerror = () => reject(request.error);
@@ -894,19 +1016,24 @@ class TaskPlanner {
         // Cancel notification
         this.cancelNotification(taskId);
 
-        // Delete from DB
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['tasks'], 'readwrite');
-            const store = transaction.objectStore('tasks');
-            const request = store.delete(taskId);
-
-            request.onsuccess = async () => {
-                await this.loadTasks();
-                this.showFeedback('המשימה נמחקה');
-                resolve();
-            };
-            request.onerror = () => reject(request.error);
-        });
+        // Delete from IndexedDB
+        await this.deleteTaskFromIndexedDB(taskId);
+        
+        // Delete from Firebase if available
+        if (this.useFirebase) {
+            try {
+                this.isCurrentUserAction = true;
+                await this.firestore.collection('tasks').doc(taskId).delete();
+                setTimeout(() => {
+                    this.isCurrentUserAction = false;
+                }, 1000);
+            } catch (error) {
+                console.error('שגיאה במחיקה מ-Firebase:', error);
+            }
+        }
+        
+        await this.loadTasks();
+        this.showFeedback('המשימה נמחקה');
     }
 
     // Reschedule Task
